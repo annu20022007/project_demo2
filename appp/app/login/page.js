@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { login, isLoggedIn } from "@/lib/auth";
 import Button from "@/components/ui/button";
@@ -11,10 +11,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
 
   // Redirect if already logged in
-  if (isLoggedIn()) {
-    router.push("/dashboard");
-  }
 
+useEffect(() => {
+    if (isLoggedIn()) {
+      router.push("/dashboard");
+    }
   const handleSubmit = (e) => {
     e.preventDefault();
       if (username && password) {
@@ -23,7 +24,7 @@ export default function LoginPage() {
     } else {
       alert("Enter username and password");
     }
-  };
+  };}, []);  
 
   return (
     <div className="flex justify-center items-center h-screen">

@@ -1,4 +1,11 @@
-
+export function getAuthToken() {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("token");
+}
+export function saveAuthToken(token) {
+  if (typeof window !== "undefined") {
+    localStorage.setItem("token", token);
+  }}
 
 // Check if user is logged in
 export function isLoggedIn() {

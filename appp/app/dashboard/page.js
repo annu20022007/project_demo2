@@ -1,73 +1,62 @@
 "use client";
-import Link from "next/link";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { isLoggedIn, logout } from "@/lib/auth";
-import Button from "@/components/ui/button";
-import { useState } from "react";
 
+import { useEffect, useState } from "react";
 import AsteroidCard from "@/components/AsteroidCard";
 
-
-const ASTEROIDS = [
-  { id: "1", name: "Apophis", danger: true },
-  { id: "2", name: "Bennu", danger: false },
-  { id: "3", name: "Didymos", danger: false },
-];
-
-
-
-export default function DashboardPage() {
-  const router = useRouter();
+export default function Dashboard() {
+  const [asteroids, setAsteroids] = useState([]);
+  const [query, setQuery] = useState("");
+  const [result, setResult] = useState(null);
 
   useEffect(() => {
-    if (!isLoggedIn()) {
-      router.push("/login");
-    }
+    fetch("http://127.0.0.1:8000/asteroids")
+      .then(res => res.json())
+      .then(data => {
+        const neo =
+          data.near_earth_objects[
+            Object.keys(data.near_earth_objects)[0]
+          ];
+        setAsteroids(neo);
+      });
   }, []);
-    
-  const handleLogout = () => {
-    logout();
-    router.push("/login");
-  };
-  const [query, setQuery] = useState("");
 
-  const filteredAsteroids = ASTEROIDS.filter((a) =>a.name.toLowerCase().includes(query.toLowerCase()));
+  const handleSearch = () => {
+    const found = asteroids.find(a =>
+      a.name.toLowerCase().includes(query.toLowerCase())
+    );
+
+    setResult(found);
+
+    if (
+      found &&
+      found.is_potentially_hazardous_asteroid
+    ) {
+      alert("⚠️ Potentially hazardous asteroid nearby. Stay safe!");
+    }
+  };
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
-   {isLoggedIn() ? (
-              <button
-                onClick={handleLogout}
-                className="text-red-400 hover:text-red-500"
-              >
-                Logout
-              </button>
-            ) : (
-              <Link href="/login" className="hover:text-cyan-400">
-                Login
-              </Link>
-            )}
-     
-      <input
-        type="text"
-        placeholder="Search asteroids..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="w-full mb-6 p-3 rounded-lg bg-zinc-900 border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
+    <div>
+      <h1 className="text-2xl font-bold mb-6">
+        Asteroid Dashboard
+      </h1>
 
-      {/* Results */}
-      {filteredAsteroids.length === 0 ? (
-        <p className="text-gray-400">No asteroids found.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAsteroids.map((asteroid) => (
-            <AsteroidCard key={asteroid.id} asteroid={asteroid} />
-          ))}
-        </div>
-      )}
+      <div className="flex gap-2 mb-6">
+        <input
+          className="flex-1 px-4 py-2 rounded bg-gray-800 text-white"
+          placeholder="Search asteroid by name..."
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+        />
+        <button
+          onClick={handleSearch}
+          className="px-4 py-2 bg-cyan-500 rounded text-black font-semibold"
+        >
+          Search
+        </button>
+      </div>
+
+      {result && <AsteroidCard asteroid={result} />}
     </div>
   );
 }

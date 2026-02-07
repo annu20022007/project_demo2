@@ -24,6 +24,6 @@ export async function getAesteroidData() {
 }
 catch (error) {
     console.error("Cosmic Watch Error:", error);
-    return []; // Return empty array so the UI doesn't break
+    return [];
   }
 }

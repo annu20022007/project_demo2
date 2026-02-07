@@ -20,7 +20,36 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="bg-black text-white min-h-screen">
-        {children}
+         {/* Navbar */}
+        <header className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
+          <div className="text-xl font-bold tracking-wide text-cyan-400">
+            ASTROMARK
+          </div>
+            <nav className="space-x-6 text-sm text-gray-300">
+            <Link href="/dashboard" className="hover:text-cyan-400">
+              Dashboard
+            </Link>
+            <Link href="/watchlist" className="hover:text-cyan-400">
+              Watchlist
+            </Link>
+            <Link href="/community" className="hover:text-cyan-400">
+              Community
+            </Link>
+            <Link href="/login" className="hover:text-cyan-400">
+              Login
+            </Link>
+          </nav>
+        </header>
+          {/* Page Content */}
+        <main className="px-6 py-8">
+          {children}
+        </main>
+
+        {/* Footer */}
+        <footer className="text-center text-xs text-gray-500 py-6 border-t border-gray-800">
+          all rights reserved &copy; 2024 | Developed by UNION CODERS....
+        </footer>
+        
       </body>
     </html>
   );

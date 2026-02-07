@@ -31,12 +31,7 @@ export default function RootLayout({ children }) {
             <Link href="/dashboard" className="hover:text-cyan-400">
               Dashboard
             </Link>
-            <Link href="/watchlist" className="hover:text-cyan-400">
-              Watchlist
-            </Link>
-            <Link href="/community" className="hover:text-cyan-400">
-              Community
-            </Link>
+              
             <Link href="/login" className="hover:text-cyan-400">
               Login
             </Link>

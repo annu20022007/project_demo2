@@ -1,5 +1,4 @@
-"use client"; // Required for Next.js App Router if using hooks or events
-
+"use client"; 
 export default function Button({ children, onClick, type = "button", className = "" }) {
   return (
     <button

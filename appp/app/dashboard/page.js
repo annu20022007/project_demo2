@@ -8,6 +8,28 @@ export default function Dashboard() {
   const [query, setQuery] = useState("");
   const [result, setResult] = useState(null);
 
+
+useEffect(() => {
+  const loadAsteroids = async () => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/asteroids");
+
+      if (!res.ok) {
+        throw new Error("Backend returned error");
+      }
+
+      const data = await res.json();
+      console.log("NASA DATA:", data); // must log
+    } catch (err) {
+      console.error("Fetch failed:", err);
+    }
+  };
+
+  loadAsteroids();
+}, []);
+
+
+
   useEffect(() => {
     fetch("http://127.0.0.1:8000/asteroids")
       .then(res => res.json())
@@ -31,7 +53,7 @@ export default function Dashboard() {
       found &&
       found.is_potentially_hazardous_asteroid
     ) {
-      alert("⚠️ Potentially hazardous asteroid nearby. Stay safe!");
+      alert(" Potentially hazardous asteroid nearby. Stay safe!");
     }
   };
 

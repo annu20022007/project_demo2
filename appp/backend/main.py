@@ -44,6 +44,16 @@ def get_asteroids():
     r.raise_for_status()
     return r.json()
 
+@app.get("/search")
+def search_asteroids(q: str):
+    url = "https://api.nasa.gov/neo/rest/v1/neo/browse?api_key=NASA_API_KEY"
+    r = requests.get(url, timeout=5)
+    r.raise_for_status()
+
+    data = r.json()["near_earth_objects"]
+    results = [a for a in data if q.lower() in a["name"].lower()]
+    return results
+
 @app.post("/register", status_code=201)
 def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     if db.query(database.User).filter_by(username=payload.username).first():

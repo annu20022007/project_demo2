@@ -1,16 +1,22 @@
-import Image from "next/image";
+import Link from "next/link";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1 className="text-4xl font-bold mb-4">Welcome to the NASA API Demo!</h1>
-      <p className="text-lg mb-8">Explore the wonders of space with our interactive application.</p>
-      <Image
-        src="/nasa-logo.png"
-        alt="NASA Logo"
-        width={200}
-        height={100}
-      />
-    </div>
+    <section className="text-center py-24">
+      <h1 className="text-5xl font-bold mb-4">
+        Cosmic Watch
+      </h1>
+
+      <p className="text-gray-400 mb-8">
+        Track Near-Earth Objects in real time
+      </p>
+
+      <Link
+        href="/dashboard"
+        className="px-6 py-3 bg-cyan-500 rounded-lg"
+      >
+        Launch Dashboard
+      </Link>
+    </section>
   );
 }

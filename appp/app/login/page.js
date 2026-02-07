@@ -1,39 +1,59 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { login, isLoggedIn } from "@/lib/auth";
 import Button from "@/components/ui/button";
 
 export default function LoginPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  
-
-useEffect(() => {
-    if (isLoggedIn()) {
+  // redirect if token already exists
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
       router.push("/dashboard");
     }
-  const handleSubmit = (e) => {
+  }, [router]);
+
+  async function handleSubmit(e) {
     e.preventDefault();
-      if (username && password) {
-      login("demo-token"); 
-      router.push("/dashboard");
-    } else {
+
+    if (!username || !password) {
       alert("Enter username and password");
+      return;
     }
-  };}, []);  
 
-  function handleSubmit(e) {
-    e.preventDefault();
+    setLoading(true);
 
-    // fake login (localStorage-based)
-    login({ username, password }); // In real app, you'd call an API here
+    try {
+      const res = await fetch("http://127.0.0.1:8000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-    router.push("/dashboard");
+      if (!res.ok) {
+        throw new Error("Invalid credentials");
+      }
+
+      const data = await res.json();
+
+      // store JWT
+      localStorage.setItem("access_token", data.access_token);
+
+      router.push("/dashboard");
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
+
   return (
     <div className="flex justify-center items-center h-screen">
       <form
@@ -41,6 +61,7 @@ useEffect(() => {
         className="bg-gray-900 p-6 rounded-lg shadow-md w-80"
       >
         <h1 className="text-2xl font-bold mb-4 text-white">Login</h1>
+
         <input
           type="text"
           placeholder="Username"
@@ -48,6 +69,7 @@ useEffect(() => {
           onChange={(e) => setUsername(e.target.value)}
           className="w-full mb-3 px-3 py-2 rounded bg-gray-800 text-white"
         />
+
         <input
           type="password"
           placeholder="Password"
@@ -55,11 +77,11 @@ useEffect(() => {
           onChange={(e) => setPassword(e.target.value)}
           className="w-full mb-4 px-3 py-2 rounded bg-gray-800 text-white"
         />
-        <Button type="submit" className="w-full">
-          Login
+
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
         </Button>
       </form>
     </div>
   );
 }
-

@@ -1,0 +1,13 @@
+"use client"; // Required for Next.js App Router if using hooks or events
+
+export default function Button({ children, onClick, type = "button", className = "" }) {
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      className={`px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors ${className}`}
+    >
+      {children}
+    </button>
+  );
+}

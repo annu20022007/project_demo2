@@ -28,10 +28,7 @@ export default function RootLayout({ children }) {
             ASTROMARK
           </div>
             <nav className="space-x-6 text-sm text-gray-300">
-            <Link href="/dashboard" className="hover:text-cyan-400">
-              Dashboard
-            </Link>
-              
+                         
             <Link href="/login" className="hover:text-cyan-400">
               Login
             </Link>

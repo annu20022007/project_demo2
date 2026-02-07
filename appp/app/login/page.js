@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { login, isLoggedIn } from "@/lib/auth";
 import Button from "@/components/ui/button";
@@ -10,7 +10,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // Redirect if already logged in
+  
 
 useEffect(() => {
     if (isLoggedIn()) {
@@ -26,6 +26,14 @@ useEffect(() => {
     }
   };}, []);  
 
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    // fake login (localStorage-based)
+    login({ username, password }); // In real app, you'd call an API here
+
+    router.push("/dashboard");
+  }
   return (
     <div className="flex justify-center items-center h-screen">
       <form

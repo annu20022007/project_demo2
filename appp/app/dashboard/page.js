@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { isLoggedIn, logout } from "@/lib/auth";
@@ -25,7 +25,7 @@ export default function DashboardPage() {
       router.push("/login");
     }
   }, []);
-
+    
   const handleLogout = () => {
     logout();
     router.push("/login");
@@ -37,7 +37,18 @@ export default function DashboardPage() {
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
-
+   {isLoggedIn() ? (
+              <button
+                onClick={handleLogout}
+                className="text-red-400 hover:text-red-500"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link href="/login" className="hover:text-cyan-400">
+                Login
+              </Link>
+            )}
      
       <input
         type="text"

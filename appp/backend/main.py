@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 import requests
@@ -8,6 +9,14 @@ import auth_utils
 
 app = FastAPI(title="Cosmic Watch - Interstellar Tracker")
 
+# ✅ CORS (DO NOT DUPLICATE allow_origins)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def get_db():
     db = database.SessionLocal()
@@ -15,7 +24,6 @@ def get_db():
         yield db
     finally:
         db.close()
-
 
 class RegisterRequest(BaseModel):
     username: str
@@ -25,76 +33,37 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
-
 @app.get("/")
 def home():
     return {"message": "Cosmic Watch System is Online"}
 
 @app.get("/asteroids")
 def get_asteroids():
-    url = "https://api.nasa.gov/neo/rest/v1/feed?api_key=DEMO_KEY"
-    try:
-        response = requests.get(url, timeout=5)
-        response.raise_for_status()
-        return response.json()
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"NASA Connection Failed: {str(e)}"
-        )
+    url = "https://api.nasa.gov/neo/rest/v1/feed?api_key=NASA_API_KEY"
+    r = requests.get(url, timeout=5)
+    r.raise_for_status()
+    return r.json()
 
-
-@app.post("/register", status_code=status.HTTP_201_CREATED)
+@app.post("/register", status_code=201)
 def register(payload: RegisterRequest, db: Session = Depends(get_db)):
-    existing_user = (
-        db.query(database.User)
-        .filter(database.User.username == payload.username)
-        .first()
-    )
+    if db.query(database.User).filter_by(username=payload.username).first():
+        raise HTTPException(400, "User already exists")
 
-    if existing_user:
-        raise HTTPException(
-            status_code=400,
-            detail="User already exists"
-        )
-
-    hashed_password = auth_utils.hash_password(payload.password)
-
-    new_user = database.User(
+    user = database.User(
         username=payload.username,
-        hashed_password=hashed_password
+        hashed_password=auth_utils.hash_password(payload.password),
     )
-
-    db.add(new_user)
+    db.add(user)
     db.commit()
-    db.refresh(new_user)
 
-    return {
-        "message": f"Researcher {payload.username} registered successfully"
-    }
+    return {"message": "Registered"}
 
-# ---------------------------
 @app.post("/login")
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
-    user = (
-        db.query(database.User)
-        .filter(database.User.username == payload.username)
-        .first()
-    )
+    user = db.query(database.User).filter_by(username=payload.username).first()
 
-    if not user or not auth_utils.verify_password(
-        payload.password, user.hashed_password
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials"
-        )
+    if not user or not auth_utils.verify_password(payload.password, user.hashed_password):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid credentials")
 
-    access_token = auth_utils.create_access_token(
-        data={"sub": user.username}
-    )
-
-    return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }
+    token = auth_utils.create_access_token({"sub": user.username})
+    return {"access_token": token, "token_type": "bearer"}

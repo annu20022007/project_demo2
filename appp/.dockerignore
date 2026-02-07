@@ -1,4 +1,24 @@
+# Node.js junk
 node_modules
 .next
+out
+build
+npm-debug.log*
+
+# Python junk
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.venv
+venv
+env
+.pytest_cache
+
+# Docker/System junk
 .git
-docker-build-logs.txt
+.gitignore
+Dockerfile
+docker-compose.yml
+.env
+.ds_store

@@ -1,84 +1,111 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import AsteroidCard from "@/components/AsteroidCard";
+import { useRouter } from "next/navigation";
+import { getUser } from "../../lib/auth";
+import { logout } from "../../lib/auth";
 
 export default function Dashboard() {
-  const [asteroids, setAsteroids] = useState([]);
-  const [query, setQuery] = useState("");
-  const [result, setResult] = useState(null);
-
-
-useEffect(() => {
-  const loadAsteroids = async () => {
-    try {
-      const res = await fetch("http://127.0.0.1:8000/asteroids");
-
-      if (!res.ok) {
-        throw new Error("Backend returned error");
-      }
-
-      const data = await res.json();
-      console.log("NASA DATA:", data); // must log
-    } catch (err) {
-      console.error("Fetch failed:", err);
-    }
-  };
-
-  loadAsteroids();
-}, []);
-
+  const router = useRouter();
 
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/asteroids")
-      .then(res => res.json())
-      .then(data => {
-        const neo =
-          data.near_earth_objects[
-            Object.keys(data.near_earth_objects)[0]
-          ];
-        setAsteroids(neo);
-      });
+    const user = getUser();
+    if (!user) router.push("/login");
+  }, [router]);
+
+  const asteroids = [
+    {
+      id: "1",
+      name: "Apophis",
+      velocity: "30 km/s",
+      risk: "High",
+      close: true,
+      hazardous: true,
+    },
+    {
+      id: "2",
+      name: "Bennu",
+      velocity: "12 km/s",
+      risk: "Low",
+      close: false,
+      hazardous: false,
+    },
+    {
+      id: "3",
+      name: "Didymos",
+      velocity: "20 km/s",
+      risk: "Medium",
+      close: true,
+      hazardous: false,
+    },
+    {
+      id: "4",
+      name: "Aliass",
+      velocity: "40 km/s",
+      risk: "Critical",
+      close: true,
+      hazardous: true,
+    },
+  ];
+
+  const [query, setQuery] = useState("");
+
+
+<button
+  onClick={() => {
+    logout();
+    router.push("/login");
+  }}
+>
+  Logout
+</button>
+
+
+  useEffect(() => {
+    asteroids.forEach((a) => {
+      if (a.hazardous && a.close) {
+        alert(`STAY SAFE! ${a.name} is hazardous and close!`);
+      }
+    });
   }, []);
 
-  const handleSearch = () => {
-    const found = asteroids.find(a =>
-      a.name.toLowerCase().includes(query.toLowerCase())
-    );
-
-    setResult(found);
-
-    if (
-      found &&
-      found.is_potentially_hazardous_asteroid
-    ) {
-      alert(" Potentially hazardous asteroid nearby. Stay safe!");
-    }
-  };
+  const filtered = asteroids.filter((a) =>
+    a.name.toLowerCase().includes(query.toLowerCase())
+  );
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">
-        Asteroid Dashboard
-      </h1>
+      <h1 className="text-2xl font-bold mb-4">Asteroid Dashboard</h1>
 
-      <div className="flex gap-2 mb-6">
-        <input
-          className="flex-1 px-4 py-2 rounded bg-gray-800 text-white"
-          placeholder="Search asteroid by name..."
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-        />
-        <button
-          onClick={handleSearch}
-          className="px-4 py-2 bg-cyan-500 rounded text-black font-semibold"
+  
+      <input
+        type="text"
+        placeholder="Search asteroid..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        className="mb-4 w-full p-2 rounded bg-gray-800 text-white border border-gray-700"
+      />
+
+     
+      {filtered.map((a) => (
+        <div
+          key={a.id}
+          className="border border-gray-700 p-4 mb-3 rounded"
         >
-          Search
-        </button>
-      </div>
+          <p><b>Name:</b> {a.name}</p>
+          <p><b>Velocity:</b> {a.velocity}</p>
+          <p><b>Risk:</b> {a.risk}</p>
+          <p>
+            <b>Status:</b>{" "}
+            {a.hazardous ? "Hazardous " : "Safe"}
+          </p>
+        </div>
+      ))}
 
-      {result && <AsteroidCard asteroid={result} />}
+      {filtered.length === 0 && (
+        <p className="text-gray-400">No asteroid found.</p>
+      )}
     </div>
   );
 }

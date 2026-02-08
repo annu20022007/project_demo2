@@ -8,7 +8,7 @@ export default function AsteroidPage() {
 
   useEffect(() => {
     async function getAsteroids() {
-      const data = await fetchAllAsteroids();  // call your API
+      const data = await fetchAllAsteroids();  
       setAsteroids(data);
     }
     getAsteroids();

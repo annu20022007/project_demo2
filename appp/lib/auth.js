@@ -1,28 +1,26 @@
-export function getAuthToken() {
+// lib/auth.js
+
+const USER_KEY = "cosmic_user";
+
+// save user on login
+export function login(user) {
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
+
+// get logged-in user
+export function getUser() {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("token");
-}
-export function saveAuthToken(token) {
-  if (typeof window !== "undefined") {
-    localStorage.setItem("token", token);
-  }}
 
-// Check if user is logged in
+  const user = localStorage.getItem(USER_KEY);
+  return user ? JSON.parse(user) : null;
+}
+
+// check if logged in
 export function isLoggedIn() {
-  if (typeof window === "undefined") return false;
-  return !!localStorage.getItem("token");
+  return !!getUser();
 }
 
-// Login user by storing token
-export function login(token) {
-  if (typeof window !== "undefined") {
-    localStorage.setItem("token", token);
-  }
-}
-
-// Logout user by removing token
+// logout user
 export function logout() {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem("token");
-  }
+  localStorage.removeItem(USER_KEY);
 }
